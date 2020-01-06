@@ -103,15 +103,41 @@ def bright_img():
     image_show(imgout)
 
 
-def perspective_transform():
-   pass
+def perspective_transform(img):
+   pts1 = np.float32([[0, 0], [0, 500], [500, 0], [500, 500]])
+   pts2 = np.float32([[5, 19], [19, 460], [460, 9], [410, 420]])
+   M = cv2.getPerspectiveTransform(pts1, pts2)
+   img_warp =cv2.warpPerspective(img, M, (500, 500))
+   image_show(img_warp)
+
+
+def similarity_transform(img):
+    M = cv2.getRotationMatrix2D((img.shape[1] / 2, img.shape[0] / 2), 30, 0.5)  # center, angle, scale
+    img_rotate = cv2.warpAffine(img, M, (img.shape[1], img.shape[0]))
+    image_show(img_rotate)
+
+
+def erode(dir=None, iter=None):
+    img_grey = cv2.imread(dir, 0)
+    erode_img = cv2.erode(img_grey, None, iterations=iter)
+    image_show(erode_img)
+
+
+def dilate(dir=None, iter=None):
+    img_grey = cv2.imread(dir, 0)
+    dilate_img = cv2.dilate(img_grey, None, iterations=iter)
+    image_show(dilate_img)
 
 
 if __name__ == '__main__':
     image_show(img_ori)
-    image_crop(150, 300, 100, 300)
+    # image_crop(150, 300, 100, 300)
     # color_shift(img_ori, b_rand=100, g_rand=40, r_rand=150)
     # rotation(img_ori)
     # adjust_gamma(img_ori, 2)
     # affine_transform(img_ori)
     # bright_img()
+    # perspective_transform(img_ori)
+    # similarity_transform(img_ori)
+    # erode('lenna.jpg', iter=10)
+    dilate('lenna.jpg', iter=10)
