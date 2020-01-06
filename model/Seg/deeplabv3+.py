@@ -13,7 +13,7 @@ class Atrous_Bottleneck(nn.Module):
         super(Atrous_Bottleneck, self).__init__()
         self.conv1 = nn.Conv2d(in_channels=inplanes, out_channels=planes, kernel_size=1, bias=False)
         self.bn1 = nn.BatchNorm2d(planes)
-        self.conv2 = nn.Conv2d(in_channels=planes, out_channels=planes,  kernel_size=1, stride=stride,
+        self.conv2 = nn.Conv2d(in_channels=planes, out_channels=planes,  kernel_size=3, stride=stride,
                                dilation=rate, padding=rate, bias=False)
         self.bn2 = nn.BatchNorm2d(planes)
         self.conv3 = nn.Conv2d(in_channels=planes, out_channels=planes * self.expansion, kernel_size=1,
@@ -89,12 +89,13 @@ class Atrous_ResNet101(nn.Module):
         out = self.maxpool(out)
 
         out = self.layer1(out)
+        conv1 = out
         out = self.layer2(out)
         out = self.layer3(out)
         out = self.layer4(out)
         # conv4 = out
         # return out, conv4
-        return out
+        return out, conv1
 
 
 class Atrous_module(nn.Module):
@@ -110,6 +111,7 @@ class Atrous_module(nn.Module):
 
 
 class DeepLabV3_plus(nn.Module):
+    """DeepLabV3P + ResNet101"""
     def __init__(self, num_classes, small=True, pretrained=False):
         super(DeepLabV3_plus, self).__init__()
         self.resnet_feature = Atrous_ResNet101(Atrous_Bottleneck, [3, 4, 23], pretrained)
@@ -121,7 +123,7 @@ class DeepLabV3_plus(nn.Module):
         self.aspp4 = Atrous_module(2048, 256, rate=rates[3])
         self.image_pool = nn.Sequential(
             nn.AdaptiveAvgPool2d(1),
-            nn.Conv2d(2018, 256, kernel_size=1)
+            nn.Conv2d(2048, 256, kernel_size=1)
         )
 
         self.conv1x1 = nn.Sequential(nn.Conv2d(1280, 256, kernel_size=1),
@@ -137,7 +139,7 @@ class DeepLabV3_plus(nn.Module):
 
     def forward(self, x):
         # Encoder
-        out = self.resnet_feature(x)
+        x, out = self.resnet_feature(x)
         x1 = self.aspp1(x)
         x2 = self.aspp2(x)
         x3 = self.aspp3(x)

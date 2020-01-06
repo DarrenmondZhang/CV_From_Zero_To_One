@@ -112,16 +112,17 @@ class Atrous_module(nn.Module):
         self.atrous_convolution = nn.Conv2d(inplanes, planes, kernel_size=3, stride=1,
                                             padding=rate, dilation=rate)
         self.batch_norm = nn.BatchNorm2d(planes)
+        self.relu = nn.ReLU(inplace=True)
 
     def forward(self, x):
-        x = self.atrous_convolution(x)
-        x = self.batch_norm(x)
+        x = self.relu(self.batch_norm(self.atrous_convolution(x)))
 
         return x
 
 
 class DeepLabv3(nn.Module):
-    def __init__(self, num_classes, small=True, pretrained=False):
+    """DeepLabV3 + ResNet101"""
+    def __init__(self, num_classes, pretrained=False):
         super(DeepLabv3, self).__init__()
         self.resnet_features = Atrous_ResNet(Atrous_Bottleneck, [3, 4, 23], pretrained)
 
@@ -135,7 +136,12 @@ class DeepLabv3(nn.Module):
             nn.AdaptiveMaxPool2d(1),
             nn.Conv2d(2048, 256, kernel_size=1)
         )
-        self.fc1 = nn.Sequential(nn.Conv2d(1280, 256, kernel_size=1), nn.BatchNorm2d(256))
+        self.fc1 = nn.Sequential(
+            nn.Conv2d(1280, 256, kernel_size=1),
+            nn.BatchNorm2d(256),
+            nn.ReLU(inplace=True),
+            nn.Dropout2d(0.5)
+        )
         self.fc2 = nn.Conv2d(256, num_classes, kernel_size=1)
 
     def forward(self, x):
