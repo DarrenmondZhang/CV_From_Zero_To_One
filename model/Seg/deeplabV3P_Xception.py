@@ -53,7 +53,7 @@ class DeepLabV3_plus(nn.Module):
     """DeepLabV3P + ResNet101"""
     def __init__(self, num_classes, small=True, pretrained=False):
         super(DeepLabV3_plus, self).__init__()
-        self.resnet_feature = Xception()
+        self.Xception_feature = Xception()
 
         rates = [1, 6, 12, 18]
         self.aspp1 = Atrous_module(2048, 256, rate=rates[0])
@@ -78,7 +78,7 @@ class DeepLabV3_plus(nn.Module):
 
     def forward(self, x):
         # Encoder
-        x, low_level_feat = self.resnet_feature(x)
+        x, low_level_feat = self.Xception_feature(x)
         x1 = self.aspp1(x)
         x2 = self.aspp2(x)
         x3 = self.aspp3(x)
