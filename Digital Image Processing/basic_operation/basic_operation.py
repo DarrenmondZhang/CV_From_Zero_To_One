@@ -59,8 +59,11 @@ def cv_video1(video, operation):
     cv2.destroyAllWindows()
 
 
-gray = cv2.COLOR_BGR2GRAY
-cv_video1('./pictures/test.mp4', operation=gray)
+def roi_crop(img, w):
+    """截取部分图像数据 ROI"""
+    img = cv2.imread('cat.jpg')
+    cat = img[0:50, 0:200]
+    cv_show('cat', cat)
 
 """ test code
 cat_ori = cv2.imread('./pictures/cat.jpg')
@@ -71,5 +74,9 @@ cv_show('grey', cat_grey)
 
 cv_save('./pictures/cat_grey.png', cat_grey)
 cv_video('./pictures/test.mp4')
+
+# 对视频进行操作
+gray = cv2.COLOR_BGR2GRAY
+cv_video1('./pictures/test.mp4', operation=gray)
 
 """
