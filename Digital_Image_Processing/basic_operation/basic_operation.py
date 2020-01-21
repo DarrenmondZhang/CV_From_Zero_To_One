@@ -1,10 +1,14 @@
 import cv2  # openCV读取的格式是BGR
-import matplotlib.pyplot as plt
-import numpy as np
+
+
+def cv_read(img):
+    """读取图片"""
+    img = cv2.imread(img)
+    return img
 
 
 def cv_show(name, img):
-    """读取图片数据并显示"""
+    """显示图片"""
     cv2.imshow(winname=name, mat=img)
     cv2.waitKey(0)  # 设置等待时间，毫秒级，0表示任意键终止
     cv2.destroyAllWindows()
@@ -45,8 +49,9 @@ def roi_crop(img, w_l, w_r, h_l, h_r, img_roi_name):
 
 
 def channels_split(img, channel):
+    """通道拆分"""
     img = cv2.imread(img)
-    b, g, r = cv2.split(img)
+    # b, g, r = cv2.split(img)
     if channel == 'r':
         img_split = img.copy()
         img_split[:, :, 0] = 0
@@ -106,7 +111,6 @@ def cv_fusion(img1, img2, rate1, rate2, size):
 
     fusion_result = cv2.addWeighted(img1, rate1, img2, rate2, 0)
     cv_show('fusion_result', fusion_result)
-
 
 
 """ test code
