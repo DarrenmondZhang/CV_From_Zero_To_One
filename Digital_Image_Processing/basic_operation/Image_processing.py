@@ -44,6 +44,7 @@ def threshold(image, operation=None):
 
 def image_smoothing(image, kernel=None, operation=None, sigma=None):
     """
+    图像平滑
     :param image: Original image input
     :param kernel: Convolution kernel size
     :param operation: Filter operation
@@ -67,40 +68,52 @@ def image_smoothing(image, kernel=None, operation=None, sigma=None):
     return image_result
 
 
-def dilation(image, kernel, iteration=None):
+def morphology(image, kernel, iteration, type=None):
     """
-    膨胀操作
+    形态学处理
     :param image: Original image input
     :param kernel: Convolution kernel size
-    :param iteration: Number of iterations
+    :param iteration: Number of iterations when operation is dilation or erosion
+    :param type: 形态学操作
     :return: Processed image
-
     """
     image = cv2.imread(image)
-    dilate = cv2.dilate(image, (kernel, kernel), iterations=iteration)
-    cv_show('erode', dilate)
-    return dilate
+    if type == 'dilation':
+        image_result = cv2.dilate(image, (kernel, kernel), iterations=iteration)
+    elif type == 'erosion':
+        image_result = cv2.erode(image, (kernel, kernel), iterations=iteration)
+    elif type == 'open':
+        # 先腐蚀 后膨胀
+        image_result = cv2.morphologyEx(image, cv2.MORPH_OPEN, (kernel, kernel))
+    elif type == 'close':
+        # 先膨胀 后腐蚀
+        image_result = cv2.morphologyEx(image, cv2.MORPH_CLOSE, (kernel, kernel))
+    elif type == 'gradient':
+        # 梯度运算 = 膨胀 - 腐蚀
+        image_result = cv2.morphologyEx(image, cv2.MORPH_GRADIENT, (kernel, kernel))
+    elif type == 'tophat':
+        # 礼帽 = 原始输入 - 开运算结果
+        image_result = cv2.morphologyEx(img, cv2.MORPH_TOPHAT, (kernel, kernel))
+    elif type == 'blackhat':
+        # 黑帽 = 闭运算 - 原始输入
+        image_result = cv2.morphologyEx(img, cv2.MORPH_BLACKHAT, (kernel, kernel))
+
+    else:
+        raise Exception("请输入正确的形态学操作")
+    cv_show(type, image_result)
+    return image_result
 
 
-def erosion(image, kernel, iteration=None):
-    """
-    腐蚀操作
-    :param image:
-    :param kernel:
-    :param iteration:
-    :return:
-    """
-    image = cv2.imread(image)
-    erosion = cv2.erode(image, (kernel, kernel), iterations=iteration)
-    cv_show('erode', erosion)
-    return erosion
+morphology('./pictures/dige.png', 5, 3, type='gradient')
 
 
-dilation('./pictures/dige.png', 3, 10)
 """ test code
 shift_hsv('./pictures/cat.jpg')
 
 threshold('./pictures/cat.jpg', operation='BINARY')
 
 image_smoothing('./pictures/cat.jpg', kernel=3, operation='boxfilter', sigma=3)
+
+morphology('./pictures/dige.png', 5, 3, type='open')
+
 """
