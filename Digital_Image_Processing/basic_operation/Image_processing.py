@@ -67,6 +67,36 @@ def image_smoothing(image, kernel=None, operation=None, sigma=None):
     return image_result
 
 
+def dilation(image, kernel, iteration=None):
+    """
+    膨胀操作
+    :param image: Original image input
+    :param kernel: Convolution kernel size
+    :param iteration: Number of iterations
+    :return: Processed image
+
+    """
+    image = cv2.imread(image)
+    dilate = cv2.dilate(image, (kernel, kernel), iterations=iteration)
+    cv_show('erode', dilate)
+    return dilate
+
+
+def erosion(image, kernel, iteration=None):
+    """
+    腐蚀操作
+    :param image:
+    :param kernel:
+    :param iteration:
+    :return:
+    """
+    image = cv2.imread(image)
+    erosion = cv2.erode(image, (kernel, kernel), iterations=iteration)
+    cv_show('erode', erosion)
+    return erosion
+
+
+dilation('./pictures/dige.png', 3, 10)
 """ test code
 shift_hsv('./pictures/cat.jpg')
 
