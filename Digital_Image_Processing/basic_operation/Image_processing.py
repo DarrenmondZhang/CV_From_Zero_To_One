@@ -148,6 +148,9 @@ def canny_edge_detection(image, min_value, max_value):
     return image_result
 
 
+def contours_detection(image):
+    pass
+
 up = cv2.pyrUp(img)
 up_down = cv2.pyrDown(up)
 
