@@ -21,3 +21,20 @@ ret, dst = cv2.threshold(src, thresh, maxval, type)
 ### 图像平滑
 * 均值滤波
 
+
+### Canny边缘检测
+1. 使用高斯滤波器，以平滑图像，滤除噪声。
+2. 计算图像中每个像素点的梯度强度和方向。
+3. 应用非极大值（Non-Maximum Suppression）抑制，以消除边缘检测带来的杂散响应。
+4. 应用双阈值（Double-Threshold）检测来确定真实的和潜在的边缘。
+5. 通过抑制孤立的弱边缘最终完成边缘检测。
+
+#### 高斯滤波器
+![title](./pictures/canny_1.png)
+#### 梯度和方向（用sobel算子）
+![title](./pictures/canny_2.png)
+####非极大值抑制
+![title](./pictures/canny_3.png)
+![title](./pictures/canny_6.png)
+#### 双阈值检测
+![title](./pictures/canny_5.png)
