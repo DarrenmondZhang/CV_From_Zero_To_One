@@ -148,6 +148,33 @@ def canny_edge_detection(image, min_value, max_value):
     return image_result
 
 
+up = cv2.pyrUp(img)
+up_down = cv2.pyrDown(up)
+
+down = cv2.pyrDown(img)
+down_up = cv2.pyrUp(down)
+l_1 = img - down_up
+cv_show(l_1,'l_1')
+
+# 轮廓检测
+img = cv2.imread('contours.png')
+gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+ret, thresh = cv2.threshold(gray, 127, 255, cv2.THRESH_BINARY)
+cv_show(thresh,'thresh')
+binary, contours, hierarchy = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
+
+# 绘制轮廓
+cv_show(img,'img')
+#传入绘制图像，轮廓，轮廓索引，颜色模式，线条厚度
+# 注意需要copy,要不原图会变。。。
+draw_img = img.copy()
+res = cv2.drawContours(draw_img, contours, -1, (0, 0, 255), 2)
+cv_show(res, 'res')
+
+# 轮廓特征
+cnt = contours[0]
+
+cv2.contourArea(cnt) # 面积
 """ test code
 shift_hsv('./pictures/cat.jpg')
 
