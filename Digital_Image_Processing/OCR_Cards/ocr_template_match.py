@@ -3,10 +3,10 @@ from imutils import contours
 import numpy as np
 import argparse
 import cv2
-import Digital_Image_Processing.OCR_Cards.myutils
 
 # 设置参数
 from Digital_Image_Processing.OCR_Cards import myutils
+from Digital_Image_Processing.basic_operation import *
 
 ap = argparse.ArgumentParser()
 ap.add_argument("-i", "--image", required=True, help="path to input image")
@@ -22,18 +22,6 @@ FIRST_NUMBER = {
 }
 
 
-def cv_show(name, img):
-    """
-	绘图展示
-	:param name: 图片名称
-	:param img:  输入图片
-	:return: None
-	"""
-    cv2.imshow(name, img)
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
-
-
 # 读取一个模板图像
 img = cv2.imread(args["template"])
 cv_show('img', img)
@@ -45,12 +33,14 @@ ref = cv2.threshold(ref, 10, 255, cv2.THRESH_BINARY_INV)[1]
 cv_show('ref', ref)
 
 # 计算轮廓
-# cv2.findContours()函数接受的参数为二值图，即黑白的（不是灰度图）,cv2.RETR_EXTERNAL只检测外轮廓，cv2.CHAIN_APPROX_SIMPLE只保留终点坐标
+# cv2.findContours()函数接受的参数为二值图，即黑白的（不是灰度图）;
+# cv2.RETR_EXTERNAL只检测外轮廓
+# cv2.CHAIN_APPROX_SIMPLE只保留终点坐标
 # 返回的list中每个元素都是图像中的一个轮廓
 
 ref_, refCnts, hierarchy = cv2.findContours(ref.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
-cv2.drawContours(img, refCnts, -1, (0, 0, 255), 3)
+cv2.drawContours(img, refCnts, -1, (0, 0, 255), 3)  # -1 all countours
 cv_show('img', img)
 print(np.array(refCnts).shape)
 refCnts = myutils.sort_contours(refCnts, method="left-to-right")[0]  # 排序，从左到右，从上到下
@@ -62,6 +52,7 @@ for (i, c) in enumerate(refCnts):
     (x, y, w, h) = cv2.boundingRect(c)
     roi = ref[y:y + h, x:x + w]
     roi = cv2.resize(roi, (57, 88))
+    cv_show('roi', roi)
 
     # 每一个数字对应每一个模板
     digits[i] = roi
@@ -106,24 +97,24 @@ cv_show('thresh', thresh)
 
 # 计算轮廓
 
-thresh_, threshCnts, hierarchy = cv2.findContours(thresh.copy(), cv2.RETR_EXTERNAL,
-                                                  cv2.CHAIN_APPROX_SIMPLE)
+thresh_, threshCnts, hierarchy = cv2.findContours(
+    thresh.copy(),
+    cv2.RETR_EXTERNAL,
+    cv2.CHAIN_APPROX_SIMPLE)
 
 cnts = threshCnts
 cur_img = image.copy()
 cv2.drawContours(cur_img, cnts, -1, (0, 0, 255), 3)
 cv_show('img', cur_img)
-locs = []
+locs = []  # roi
 
 # 遍历轮廓
 for (i, c) in enumerate(cnts):
     # 计算矩形
     (x, y, w, h) = cv2.boundingRect(c)
-    ar = w / float(h)
-
+    ar = w / float(h)  # 长宽比例：根据实际任务
     # 选择合适的区域，根据实际任务来，这里的基本都是四个数字一组
     if ar > 2.5 and ar < 4.0:
-
         if (w > 40 and w < 55) and (h > 10 and h < 20):
             # 符合的留下来
             locs.append((x, y, w, h))
@@ -184,5 +175,4 @@ for (i, (gX, gY, gW, gH)) in enumerate(locs):
 # 打印结果
 print("Credit Card Type: {}".format(FIRST_NUMBER[output[0]]))
 print("Credit Card #: {}".format("".join(output)))
-cv2.imshow("Image", image)
-cv2.waitKey(0)
+cv_show('image_result', image)
