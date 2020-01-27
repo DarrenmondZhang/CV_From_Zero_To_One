@@ -1,4 +1,4 @@
-import cv2  # opencv读取的格式是BGR
+import cv2  # openCV读取的格式是BGR
 import numpy as np
 import matplotlib.pyplot as plt  # Matplotlib是RGB
 from Digital_Image_Processing.basic_operation.basic_operation import *
@@ -148,36 +148,83 @@ def canny_edge_detection(image, min_value, max_value):
     return image_result
 
 
-def contours_detection(image):
-    pass
+def pattern_matching(image, template, threshold, type=None):
+    """
+    多对象模板匹配
+    :param image: 原始图片
+    :param template: 模板图片
+    :param threshold: 阈值
+    :param type: 模板匹配算法
+    :return:
+    """
+    image = cv2.imread(image)
+    image_grey = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    template = cv2.imread(template, 0)
+    h, w = template.shape[:2]
+    res = cv2.matchTemplate(image_grey, template, type)
+    threshold = threshold
+    # 取匹配程度大于阈值的坐标
+    loc = np.where(res >= threshold)
+    for pt in zip(*loc[::-1]):  # *号表示可选参数
+        bottom_right = (pt[0] + w, pt[1] + h)
+        cv2.rectangle(image, pt, bottom_right, (0, 0, 255), 2)
 
-up = cv2.pyrUp(img)
-up_down = cv2.pyrDown(up)
+    cv_show('match_result', image)
+    return image
 
-down = cv2.pyrDown(img)
-down_up = cv2.pyrUp(down)
-l_1 = img - down_up
-cv_show(l_1,'l_1')
 
-# 轮廓检测
-img = cv2.imread('contours.png')
-gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-ret, thresh = cv2.threshold(gray, 127, 255, cv2.THRESH_BINARY)
-cv_show(thresh,'thresh')
-binary, contours, hierarchy = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
+def hist(image, operation=None):
+    """
+    直方图显示
+    :param image: 原始图像
+    :param operation:
 
-# 绘制轮廓
-cv_show(img,'img')
-#传入绘制图像，轮廓，轮廓索引，颜色模式，线条厚度
-# 注意需要copy,要不原图会变。。。
-draw_img = img.copy()
-res = cv2.drawContours(draw_img, contours, -1, (0, 0, 255), 2)
-cv_show(res, 'res')
+    :return:
+    """
+    if operation == 'grey_show':
+        image = cv2.imread(image, 0)
+        plt.hist(image.ravel(), 256)
+        plt.show()
+    if operation == 'hist_show':
+        image = cv2.imread(image)
+        color = ('b', 'g', 'r')
+        for i, col in enumerate(color):
+            hist = cv2.calcHist([image], [i], None, [256], [0, 256])
+            plt.plot(hist, color=col)
+            plt.xlim([0, 256])
+            plt.show()
+    if operation == 'mask':
+        image = cv2.imread(image, 0)
+        mask = np.zeros(image.shape[:2], np.uint8)
+        mask[100:300, 100:400] = 255
+        masked_img = cv2.bitwise_and(img, img, mask=mask)  # 与操作
+        hist_mask = cv2.calcHist([img], [0], mask, [256], [0, 256])
+        hist_full = cv2.calcHist([img], [0], None, [256], [0, 256])
+        plt.subplot(121), plt.imshow(masked_img, 'gray')
+        plt.subplot(222), plt.plot(hist_full), plt.plot(hist_mask)
+        plt.xlim([0, 256])
+        plt.show()
 
-# 轮廓特征
-cnt = contours[0]
 
-cv2.contourArea(cnt) # 面积
+def hist_equ(image, operation=None):
+    """
+    直方图均衡化
+    :param image: 原始图像
+    :param operation:
+    :return:
+    """
+    image = cv2.imread(image, 0)  # 0表示灰度图 #clahe
+    if operation == 'hist_equ':
+        equ = cv2.equalizeHist(image)
+    elif operation == 'adaptive_hist_equ':
+        clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8))
+        equ = clahe.apply(image)
+    cv_show('hist_equ', equ)
+    return equ
+
+
+hist_equ('./pictures/cat.jpg', operation='adaptive_hist_equ')
+
 """ test code
 shift_hsv('./pictures/cat.jpg')
 
@@ -190,5 +237,9 @@ morphology('./pictures/dige.png', 5, 3, type='open')
 gradient_operator('./pictures/lena.jpg', type='sobel')
 
 canny_edge_detection("./pictures/car.png", 120, 250)
+
+pattern_matching('./pictures/mario.jpg', './pictures/mario_coin.jpg', 0.8, cv2.TM_CCOEFF_NORMED)
+
+hist('./pictures/cat.jpg', 'mask')
 
 """
