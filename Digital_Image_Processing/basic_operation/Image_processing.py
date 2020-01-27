@@ -223,8 +223,43 @@ def hist_equ(image, operation=None):
     return equ
 
 
-hist_equ('./pictures/cat.jpg', operation='adaptive_hist_equ')
+def fourier_transform(image, type=None):
+    """
+    傅里叶变换
+    :param image: 原始图像
+    :param type: 高通滤波 vs. 低通滤波
+    :return:
+    """
+    image = cv2.imread(image, 0)
+    img_float32 = np.float32(image)
+    dft = cv2.dft(img_float32, flags=cv2.DFT_COMPLEX_OUTPUT)
+    dft_shift = np.fft.fftshift(dft)
+    rows, cols = image.shape
+    crow, ccol = int(rows / 2), int(cols / 2)  # 中心位置
 
+    if type == 'high_pass':
+        # 低通滤波
+        mask = np.zeros((rows, cols, 2), np.uint8)
+        mask[crow - 30:crow + 30, ccol - 30:ccol + 30] = 1
+    elif type == 'low_pass':
+        # 高通滤波
+        mask = np.ones((rows, cols, 2), np.uint8)
+        mask[crow - 30:crow + 30, ccol - 30:ccol + 30] = 0
+    # IDFT
+    fshift = dft_shift * mask
+    f_ishift = np.fft.ifftshift(fshift)
+    img_back = cv2.idft(f_ishift)
+    img_back = cv2.magnitude(img_back[:, :, 0], img_back[:, :, 1])
+
+    plt.subplot(121), plt.imshow(image, cmap='gray')
+    plt.title('Input Image'), plt.xticks([]), plt.yticks([])
+    plt.subplot(122), plt.imshow(img_back, cmap='gray')
+    plt.title('Result'), plt.xticks([]), plt.yticks([])
+
+    plt.show()
+    return img_back
+
+fourier_transform('./pictures/lena.jpg', type='low_pass')
 """ test code
 shift_hsv('./pictures/cat.jpg')
 
@@ -241,5 +276,7 @@ canny_edge_detection("./pictures/car.png", 120, 250)
 pattern_matching('./pictures/mario.jpg', './pictures/mario_coin.jpg', 0.8, cv2.TM_CCOEFF_NORMED)
 
 hist('./pictures/cat.jpg', 'mask')
+
+hist_equ('./pictures/cat.jpg', operation='adaptive_hist_equ')
 
 """
