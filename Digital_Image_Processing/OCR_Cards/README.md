@@ -2,4 +2,7 @@
 
 使用到的技术：
 1. 轮廓检测：外轮廓 + 外接矩形 
-2. 模板匹配：resize(外接矩形 和 模板 resize成相同大小) 
+2. 模板匹配：resize(外接矩形 和 模板 resize成相同大小)
+
+
+https://www.yuque.com/darrenzhang/cv/dnxxcq
