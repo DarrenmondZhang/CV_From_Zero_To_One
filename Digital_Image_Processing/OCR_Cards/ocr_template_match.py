@@ -71,14 +71,13 @@ cv_show('gray', gray)
 # 礼帽操作，突出更明亮的区域
 tophat = cv2.morphologyEx(gray, cv2.MORPH_TOPHAT, rectKernel)
 cv_show('tophat', tophat)
-#  # ksize=-1相当于用3*3的
-gradX = cv2.Sobel(tophat, ddepth=cv2.CV_32F, dx=1, dy=0, ksize=-1)
 
+# ksize=-1相当于用3*3的
+gradX = cv2.Sobel(tophat, ddepth=cv2.CV_32F, dx=1, dy=0, ksize=-1)
 gradX = np.absolute(gradX)
 (minVal, maxVal) = (np.min(gradX), np.max(gradX))
 gradX = (255 * ((gradX - minVal) / (maxVal - minVal)))
 gradX = gradX.astype("uint8")
-
 print(np.array(gradX).shape)
 cv_show('gradX', gradX)
 
@@ -86,17 +85,13 @@ cv_show('gradX', gradX)
 gradX = cv2.morphologyEx(gradX, cv2.MORPH_CLOSE, rectKernel)
 cv_show('gradX', gradX)
 # THRESH_OTSU会自动寻找合适的阈值，适合双峰，需把阈值参数设置为0
-thresh = cv2.threshold(gradX, 0, 255,
-                       cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
+thresh = cv2.threshold(gradX, 0, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
 cv_show('thresh', thresh)
-
 # 再来一个闭操作
-
 thresh = cv2.morphologyEx(thresh, cv2.MORPH_CLOSE, sqKernel)  # 再来一个闭操作
 cv_show('thresh', thresh)
 
 # 计算轮廓
-
 thresh_, threshCnts, hierarchy = cv2.findContours(
     thresh.copy(),
     cv2.RETR_EXTERNAL,
@@ -132,14 +127,14 @@ for (i, (gX, gY, gW, gH)) in enumerate(locs):
     group = gray[gY - 5:gY + gH + 5, gX - 5:gX + gW + 5]
     cv_show('group', group)
     # 预处理
-    group = cv2.threshold(group, 0, 255,
-                          cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
+    group = cv2.threshold(group, 0, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
     cv_show('group', group)
     # 计算每一组的轮廓
-    group_, digitCnts, hierarchy = cv2.findContours(group.copy(), cv2.RETR_EXTERNAL,
-                                                    cv2.CHAIN_APPROX_SIMPLE)
-    digitCnts = contours.sort_contours(digitCnts,
-                                       method="left-to-right")[0]
+    group_, digitCnts, hierarchy = cv2.findContours(
+        group.copy(),
+        cv2.RETR_EXTERNAL,
+        cv2.CHAIN_APPROX_SIMPLE)
+    digitCnts = contours.sort_contours(digitCnts, method="left-to-right")[0]
 
     # 计算每一组中的每一个数值
     for c in digitCnts:
@@ -155,8 +150,7 @@ for (i, (gX, gY, gW, gH)) in enumerate(locs):
         # 在模板中计算每一个得分
         for (digit, digitROI) in digits.items():
             # 模板匹配
-            result = cv2.matchTemplate(roi, digitROI,
-                                       cv2.TM_CCOEFF)
+            result = cv2.matchTemplate(roi, digitROI, cv2.TM_CCOEFF)
             (_, score, _, _) = cv2.minMaxLoc(result)
             scores.append(score)
 
@@ -164,10 +158,8 @@ for (i, (gX, gY, gW, gH)) in enumerate(locs):
         groupOutput.append(str(np.argmax(scores)))
 
     # 画出来
-    cv2.rectangle(image, (gX - 5, gY - 5),
-                  (gX + gW + 5, gY + gH + 5), (0, 0, 255), 1)
-    cv2.putText(image, "".join(groupOutput), (gX, gY - 15),
-                cv2.FONT_HERSHEY_SIMPLEX, 0.65, (0, 0, 255), 2)
+    cv2.rectangle(image, (gX - 5, gY - 5), (gX + gW + 5, gY + gH + 5), (0, 0, 255), 1)
+    cv2.putText(image, "".join(groupOutput), (gX, gY - 15), cv2.FONT_HERSHEY_SIMPLEX, 0.65, (0, 0, 255), 2)
 
     # 得到结果
     output.extend(groupOutput)
@@ -176,3 +168,4 @@ for (i, (gX, gY, gW, gH)) in enumerate(locs):
 print("Credit Card Type: {}".format(FIRST_NUMBER[output[0]]))
 print("Credit Card #: {}".format("".join(output)))
 cv_show('image_result', image)
+cv_save('image_result.jpg', image)
