@@ -91,7 +91,7 @@ cv_show('edged', edged)
 
 # 轮廓检测
 cnts = cv2.findContours(edged.copy(), cv2.RETR_EXTERNAL,
-                        cv2.CHAIN_APPROX_SIMPLE)[1]
+                        cv2.CHAIN_APPROX_SIMPLE)[1]  # 只需要轮廓信息
 cv2.drawContours(contours_img, cnts, -1, (0, 0, 255), 3)
 cv_show('contours_img', contours_img)
 docCnt = None
@@ -113,12 +113,11 @@ if len(cnts) > 0:
             break
 
 # 执行透视变换
-
 warped = four_point_transform(gray, docCnt.reshape(4, 2))
 cv_show('warped', warped)
 # Otsu's 阈值处理
 thresh = cv2.threshold(warped, 0, 255,
-                       cv2.THRESH_BINARY_INV | cv2.THRESH_OTSU)[1]
+                       cv2.THRESH_BINARY_INV | cv2.THRESH_OTSU)[1]  # 自适应
 cv_show('thresh', thresh)
 thresh_Contours = thresh.copy()
 # 找到每一个圆圈轮廓
