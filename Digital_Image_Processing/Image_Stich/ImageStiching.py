@@ -7,8 +7,9 @@ imageA = cv2.imread("left_01.png")
 imageB = cv2.imread("right_01.png")
 
 # 把图片拼接成全景图
-stitcher = Stitcher()
-(result, vis) = stitcher.stitch([imageA, imageB], showMatches=True)
+# stitcher = Stitcher()
+# (result, vis) = stitcher.stitch([imageA, imageB], showMatches=True)
+(result, vis) = Stitcher().stitch([imageA, imageB], showMatches=True)
 
 # 显示所有图片
 cv_show("Image A", imageA)

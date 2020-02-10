@@ -13,25 +13,20 @@ def detectAndDescribe(image):
     :param image:
     :return:
     """
-    # 将彩色图片转换成灰度图
-    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-
     # 建立SIFT生成器
     descriptor = cv2.xfeatures2d.SIFT_create()
     # 检测SIFT特征点，并计算描述子
     (kps, features) = descriptor.detectAndCompute(image, None)
-
     # 将结果转换成NumPy数组
     kps = np.float32([kp.pt for kp in kps])
-
     # 返回特征点集，及对应的描述特征
     return kps, features
 
 
 def matchKeypoints(kpsA, kpsB, featuresA, featuresB, ratio, reprojThresh):
     """ 特征点配对
-    :param kpsA: 关键点A
-    :param kpsB: 关键点B
+    :param kpsA: A的关键点
+    :param kpsB: B的关键点
     :param featuresA: A的特征
     :param featuresB: B的特征
     :param ratio: 过滤比值 -> 官方教程为0.75
@@ -41,7 +36,7 @@ def matchKeypoints(kpsA, kpsB, featuresA, featuresB, ratio, reprojThresh):
     # 建立暴力匹配器
     matcher = cv2.BFMatcher()
 
-    # 使用KNN检测来自A、B图的SIFT特征匹配对，K=2
+    # K对最佳匹配：使用KNN检测来自A、B图的SIFT特征匹配对，K=2
     rawMatches = matcher.knnMatch(featuresA, featuresB, 2)
 
     matches = []  # 配对完成的特征点的索引
