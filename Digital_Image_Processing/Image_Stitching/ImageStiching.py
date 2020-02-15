@@ -1,4 +1,4 @@
-﻿from Digital_Image_Processing.Image_Stich.Stitcher import Stitcher
+﻿from Digital_Image_Processing.Image_Stitching.Stitcher import Stitcher
 from Digital_Image_Processing.basic_operation.basic_operation import *
 import cv2
 
